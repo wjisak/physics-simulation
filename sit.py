@@ -39,8 +39,8 @@ def ipex(initial_v, t, angle, tx3):
     screen.blit(speed_text, (10, 10))  # 顯示於視窗左上角
     time_text = font.render(f"Time: {t:.2f}", True, black)  # 顯示時間
     screen.blit(time_text, (10, 40))  # 顯示於視窗左上角
-    # angle_text = font.render(f"Angle: {angle} (left&right)", True, black)  # 顯示時間
-    # screen.blit(angle_text, (10, 70))  # 顯示於視窗左上角
+    angle_text = font.render(f"Angle: {angle} (left&right)", True, black)  # 顯示時間
+    screen.blit(angle_text, (10, 110))  # 顯示於視窗左上角
     tr_text = font.render(f"Trangle length: {tx3} (left&right)", True, black)  # 顯示時間
     screen.blit(tr_text, (10, 70))  # 顯示於視窗左上角
     exo_text = font.render(f"up&down for speed", True, black)  #說明
@@ -195,7 +195,7 @@ def Projectile_Motion(w, h,white, black, initial_v, v, g, t, circle_x, circle_y,
                 return circle_y, initial_v, t, 0
     return circle_y, initial_v, t, 1
 
-def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r): #斜拋
+def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r): #三角形斜面
     """
     使用上下操控速度，
     使用左右操控斜面長度，
@@ -214,6 +214,7 @@ def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r)
     ty2 = h-250
     tx3 = 300
     ty3 = h
+    tan = float(ty2/tx3)
     trangle_points = [(tx1, ty1), (tx2, ty2), (tx3, ty3)]
 
     while simulation_running:
@@ -234,12 +235,23 @@ def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r)
                 elif event.key == pygame.K_RIGHT:
                     if tx3<w:
                         tx3 += 50
+                        tan = float(ty2/tx3)
+                        trangle_points = [(tx1, ty1), (tx2, ty2), (tx3, ty3)]
+                        pygame.draw.polygon(screen, black, trangle_points, 0)
+                        pygame.draw.circle(screen, black, (circle_x, circle_y), r)
                 elif event.key == pygame.K_LEFT:
                     if tx3>0 :
                         tx3 -= 50
-                elif event.key == pygame.K_5:
+                        tan = float(ty2/tx3)
+                        trangle_points = [(tx1, ty1), (tx2, ty2), (tx3, ty3)]
+                        pygame.draw.polygon(screen, black, trangle_points, 0)
+                        pygame.draw.circle(screen, black, (circle_x, circle_y), r)
+                elif event.key == pygame.K_6:
                     if angle<90 :
-                        angle +=5
+                        angle +=1
+                elif event.key == pygame.K_4:
+                    if angle>90 :
+                        angle -=1
                 elif event.key == pygame.K_r:
                     t = 0
                     initial_v = 0
@@ -251,6 +263,9 @@ def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r)
                     pygame.draw.polygon(screen, black, trangle_points, 0)
                     pygame.draw.circle(screen, black, (circle_x, circle_y), r)
                 elif event.key == pygame.K_s:
+                    circle_x = r
+                    circle_y = h//2
+                    pygame.draw.circle(screen, black, (circle_x, circle_y), r)
 
                     if v<0: 
                         circle_x = w
@@ -263,12 +278,17 @@ def inclined_plane(w, h,white, black, initial_v, v, g, t, circle_x, circle_y, r)
                         v_x = v * m.cos(m.radians(angle))
                         v_y = -1*v * m.sin(m.radians(angle))
                         v_y = v_y + g * t 
-                        circle_y += v_y * delta_t  # 更新位置
+                        print(circle_y)
+                        print(h-(circle_x*tan))
+                        if circle_y<=h-(circle_x*tan):
+                            circle_y += v_y * delta_t  # 更新位置
+                        elif circle_y>h-(circle_x*tan):
+                            circle_y = h-(circle_x*tan)
                         circle_x += v_x
 
                         screen.fill(white)
                         # 顯示初速
-                        pmex(initial_v, t, angle)
+                        ipex(initial_v, t, angle, tx3)
                         #計算速度
                         v_y += g*t
 
